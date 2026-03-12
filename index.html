@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>STONE</title>
+
+    <style>
+        body {
+            font-family: monospace;
+            text-align: center;
+            background: #eee;
+        }
+
+        #rock {
+            font-size: 90px;
+            margin: 20px;
+            transition: 0.3s;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        #log {
+            width: 520px;
+            margin: auto;
+            height: 150px;
+            overflow: auto;
+            border: 1px solid #999;
+            padding: 10px;
+            background: white;
+            text-align: left;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #timebar {
+            width: 520px;
+            height: 12px;
+            background: #ccc;
+            margin: auto;
+            margin-top: 10px;
+        }
+
+        #progress {
+            height: 12px;
+            width: 0%;
+            background: #4a90e2;
+            transition: width 4s linear;
+        }
+
+        .diamond {
+            font-size: 120px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>STONE</h1>
+
+    <div id="rock">🪨</div>
+
+    <h3 id="environment"></h3>
+    <p id="description"></p>
+
+    <div id="choices" class="hidden">
+        <button onclick="choose(0)" id="c1"></button>
+        <button onclick="choose(1)" id="c2"></button>
+        <button onclick="choose(2)" id="c3"></button>
+    </div>
+
+    <br>
+
+    Integridade: <span id="hp">100</span>
+    Dias: <span id="day">0</span> / 30
+
+    <div id="timebar">
+        <div id="progress"></div>
+    </div>
+
+    <br>
+
+    <div id="log"></div>
+
+    <script>
+
+        let hp = 100
+        let stage = 0
+        let day = 0
+        let timer = null
+
+        let moved = false
+        let jumped = false
+        let gameStarted = false
+
+        const stages = [
+
+            {
+                name: "Montanha fria",
+                desc: "O gelo entra nas pequenas rachaduras.",
+                choices: [
+                    "Compactar estrutura",
+                    "Tornar-se porosa",
+                    "Endurecer superfície"
+                ],
+                correct: 0
+            },
+
+            {
+                name: "Rio",
+                desc: "A água corrente desgasta lentamente.",
+                choices: [
+                    "Tornar-se porosa",
+                    "Endurecer superfície",
+                    "Comprimir"
+                ],
+                correct: 0
+            },
+
+            {
+                name: "Cachoeira",
+                desc: "A água bate constantemente contra você.",
+                choices: [
+                    "Tornar-se porosa",
+                    "Endurecer superfície",
+                    "Comprimir"
+                ],
+                correct: 1
+            },
+
+            {
+                name: "Fundo do mar",
+                desc: "A pressão é enorme.",
+                choices: [
+                    "Comprimir estrutura",
+                    "Tornar-se porosa",
+                    "Endurecer"
+                ],
+                correct: 0
+            },
+
+            {
+                name: "Subsolo profundo",
+                desc: "Milhões de anos de pressão passam.",
+                choices: [
+                    "Comprimir ainda mais",
+                    "Rachar",
+                    "Tornar-se porosa"
+                ],
+                correct: 0
+            }
+
+        ]
+
+        function log(t) {
+            document.getElementById("log").innerHTML =
+                t + "<br>" + document.getElementById("log").innerHTML
+        }
+
+        log("Use WASD ou setas para mover.")
+        log("Use ESPAÇO para pular.")
+
+        document.addEventListener("keydown", (e) => {
+
+            let k = e.key.toLowerCase()
+
+            if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(k)) {
+
+                if (!moved) {
+
+                    log("Você tenta se mover...")
+
+                    setTimeout(() => {
+                        log("Nada acontece.")
+                        log("Você é uma pedra.")
+                    }, 1000)
+
+                    moved = true
+                }
+
+            }
+
+            if (e.code === "Space") {
+
+                if (!jumped) {
+
+                    log("Você tenta pular...")
+
+                    setTimeout(() => {
+                        log("Pedras não pulam.")
+                        log("Pedras não correm.")
+                        log("Pedras apenas resistem.")
+                    }, 1200)
+
+                    jumped = true
+                }
+
+            }
+
+            if (moved && jumped && !gameStarted) {
+                setTimeout(startGame, 2000)
+            }
+
+        })
+
+        function startGame() {
+
+            gameStarted = true
+
+            log("O tempo começa a passar...")
+
+            document.getElementById("choices").classList.remove("hidden")
+
+            loadStage()
+
+            timer = setInterval(passDay, 4000)
+
+            startProgress()
+
+        }
+
+        function startProgress() {
+
+            let bar = document.getElementById("progress")
+
+            bar.style.transition = "none"
+            bar.style.width = "0%"
+
+            setTimeout(() => {
+                bar.style.transition = "width 4s linear"
+                bar.style.width = "100%"
+            }, 50)
+
+        }
+
+        function passDay() {
+
+            day++
+
+            document.getElementById("day").innerText = day
+
+            hp -= 5
+
+            log("O tempo passa e o ambiente desgasta a pedra.")
+
+            if (hp < 0) hp = 0
+
+            document.getElementById("hp").innerText = hp
+
+            startProgress()
+
+            if (hp <= 0) {
+                gameOver()
+                return
+            }
+
+            if (day >= 30) {
+                victory()
+                return
+            }
+
+        }
+
+        function loadStage() {
+
+            let s = stages[stage]
+
+            document.getElementById("environment").innerText = s.name
+            document.getElementById("description").innerText = s.desc
+
+            document.getElementById("c1").innerText = s.choices[0]
+            document.getElementById("c2").innerText = s.choices[1]
+            document.getElementById("c3").innerText = s.choices[2]
+
+        }
+
+        function choose(c) {
+
+            let s = stages[stage]
+
+            if (c == s.correct) {
+
+                log("A pedra reage corretamente ao ambiente.")
+
+                hp += 4
+
+                stage++
+
+                if (stage >= stages.length) {
+                    stage = 0
+                }
+
+                loadStage()
+
+            } else {
+
+                log("Essa reação não combina com o ambiente.")
+
+                hp -= 10
+                if (hp < 0) hp = 0
+
+            }
+
+            document.getElementById("hp").innerText = hp
+
+            if (hp <= 0) {
+                gameOver()
+            }
+
+        }
+
+        function gameOver() {
+
+            clearInterval(timer)
+
+            alert(
+
+                "Mesmo as pedras mais fortes podem quebrar.\n\n" +
+                "A vida também traz pressão, desgaste e impactos.\n" +
+                "Resiliência não significa nunca rachar,\n" +
+                "mas continuar enfrentando o tempo."
+
+            )
+
+            location.reload()
+
+        }
+
+        function victory() {
+
+            clearInterval(timer)
+
+            if (hp > 100) {
+
+                document.getElementById("rock").innerText = "💎"
+                document.getElementById("rock").classList.add("diamond")
+
+                alert(
+
+                    "Durante muito tempo você suportou pressão, impacto e desgaste.\n\n" +
+                    "Algumas pedras apenas sobrevivem...\n" +
+                    "Mas outras se transformam.\n\n" +
+                    "Hoje você não é apenas uma pedra.\n" +
+                    "Você se tornou um DIAMANTE.\n\n" +
+                    "Resiliência não é apenas resistir.\n" +
+                    "É deixar que o tempo transforme você em algo mais forte."
+
+                )
+
+            } else {
+
+                alert(
+
+                    "Você resistiu até o dia 30.\n\n" +
+                    "Assim como uma pedra enfrenta água, vento e pressão,\n" +
+                    "nós também enfrentamos desafios.\n\n" +
+                    "Nem sempre controlamos o ambiente,\n" +
+                    "mas podemos escolher como permanecer."
+
+                )
+
+            }
+
+            setTimeout(() => location.reload(), 500)
+
+        }
+
+    </script>
+
+</body>
+
+</html>
