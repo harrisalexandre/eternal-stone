@@ -67,7 +67,7 @@ Sistema de integridade:
 | Evento             | Efeito |
 | ------------------ | ------ |
 | Passagem de um dia | -5 HP  |
-| Escolha correta    | +4 HP  |
+| Escolha correta    | +7 HP  |
 | Escolha incorreta  | -10 HP |
 
 O jogo termina quando:
@@ -84,13 +84,6 @@ Se o jogador terminar o jogo com:
 ```
 HP > 100
 ```
-
-Depois de suportar pressão, desgaste e tempo…
-
-A pedra se transforma em:
-
-**💎 DIAMANTE**
-
 ---
 
 # 🎓 Tutorial Inicial
